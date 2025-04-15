@@ -27,6 +27,7 @@ func main() {
 	flag.StringVar(&opt.address, "address", "tcp://127.0.0.1:502", "Example: tcp://127.0.0.1:502, rtu:///dev/ttyUSB0")
 	flag.IntVar(&opt.slaveID, "slaveID", 1, "Is used for intra-system routing purpose, typically for serial connections, TCP default 0xFF")
 	flag.DurationVar(&opt.timeout, "timeout", 20*time.Second, "Modbus connection timeout")
+	flag.DurationVar(&opt.connectDelay, "connect-delay", 0, "Delay before establishing the Modbus connection") // New flag for ConnectDelay
 	// tcp
 	flag.DurationVar(&opt.tcp.linkRecoveryTimeout, "tcp-timeout-link-recovery", 20*time.Second, "Link timeout")
 	flag.DurationVar(&opt.tcp.protocolRecoveryTimeout, "tcp-timeout-protocol-recovery", 20*time.Second, "Proto timeout")
@@ -442,6 +443,7 @@ type option struct {
 	address string
 	slaveID int
 	timeout time.Duration
+	connectDelay time.Duration
 
 	logger modbus.Logger
 
@@ -471,6 +473,10 @@ type option struct {
 }
 
 func newHandler(o option) (modbus.ClientHandler, error) {
+    if o.connectDelay > 0 {
+        time.Sleep(o.connectDelay) // Apply the connection delay
+    }
+
 	u, err := url.Parse(o.address)
 	if err != nil {
 		return nil, err
