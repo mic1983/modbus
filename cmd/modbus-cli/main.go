@@ -473,10 +473,6 @@ type option struct {
 }
 
 func newHandler(o option) (modbus.ClientHandler, error) {
-    if o.connectDelay > 0 {
-        time.Sleep(o.connectDelay) // Apply the connection delay
-    }
-
 	u, err := url.Parse(o.address)
 	if err != nil {
 		return nil, err
@@ -515,6 +511,10 @@ func newHandler(o option) (modbus.ClientHandler, error) {
 				InsecureSkipVerify: o.tcp.insecure,
 			}))
 		}
+
+		// Pass ConnectDelay as an option
+		options = append(options, modbus.WithConnectDelay(o.connectDelay))
+
 		h := modbus.NewTCPClientHandler(u.Host, options...)
 		h.Timeout = o.timeout
 		h.SlaveID = byte(o.slaveID)

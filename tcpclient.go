@@ -66,6 +66,13 @@ func WithDialer(d DialFunc) TCPClientHandlerOption {
 	}
 }
 
+// WithConnectDelay returns a TCPClientHandlerOption that sets the ConnectDelay.
+func WithConnectDelay(delay time.Duration) TCPClientHandlerOption {
+    return func(h *TCPClientHandler) {
+        h.ConnectDelay = delay
+    }
+}
+
 // DialFunc is the prototype of a function that connects to an address on a
 // named network. It Satisfies the [net.Dialer.DialContext] function signature.
 type DialFunc func(ctx context.Context, network, addr string) (net.Conn, error)
